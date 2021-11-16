@@ -1,0 +1,64 @@
+pipeline{
+    
+    agent any
+    
+    tools{
+        maven 'maven 3.8.3'
+    }
+    
+    stages{
+        
+        stage('CheckOutCode'){
+            steps{
+                git credentialsId: '7c096911-2ba7-4f37-8ecc-b3d4c3596075', url: 'https://github.com/mushrifmulla/maven-web-application.git'
+            }
+        }
+        
+        stage('Build'){
+            steps{
+                sh "mvn clean package"
+            }
+        }
+        
+        stage('SonarQubeReport'){
+            steps{
+                sh "mvn sonar:sonar"
+            }
+        }
+        
+        stage('UploadArtifactIntoNexusRepo'){
+            steps{
+                sh "mvn deploy"
+            }
+        }
+        
+        stage('DeployIntoTomcatServer'){
+            steps{
+                sshagent(['440ac47c-2d91-4f17-9afd-df0724e70493']) {
+                sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.233.86.123:/opt/apache-tomcat-9.0.54/webapps/"
+              }
+            }
+        }
+    }//stages closing
+    
+    post{
+        success{
+             mail bcc: '', body: '''Build Complete
+
+
+
+Regards,
+Mushrif Mulla''', cc: 'mcube.rehman@gmail.com', from: '', replyTo: '', subject: 'Build Complete', to: 'mushrifmulla@gmail.com'
+        }
+        
+        failure{
+             mail bcc: '', body: '''Build Complete
+
+
+
+Regards,
+Mushrif Mulla''', cc: 'mcube.rehman@gmail.com', from: '', replyTo: '', subject: 'Build Complete', to: 'mushrifmulla@gmail.com'
+        }
+    }
+    
+}//pipeline closing
