@@ -1,0 +1,42 @@
+node{
+    
+    def mavenHome = tool name: "maven 3.8.3"
+    
+    properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([pollSCM('* * * * *')])])
+    
+    stage('CheckOutCode'){
+        git credentialsId: '7c096911-2ba7-4f37-8ecc-b3d4c3596075', url: 'https://github.com/mushrifmulla/maven-web-application.git'
+    }
+    
+    stage('Build'){
+        sh "${mavenHome}/bin/mvn clean package"
+    }
+    
+    stage('ExecuteSOnarQubeReport'){
+        sh "${mavenHome}/bin/mvn clean sonar:sonar"
+    }
+    
+    stage('UploadArtifactsIntoNexusRepo'){
+        sh "${mavenHome}/bin/mvn deploy"
+    }
+    
+    stage('DeployAppIntoTomcatServer'){
+        sshagent(['440ac47c-2d91-4f17-9afd-df0724e70493']) {
+        sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.233.86.123:/opt/apache-tomcat-9.0.54/webapps/"
+        }
+    }
+    
+    stage('SendEmailNotification'){
+        mail bcc: '', body: '''Build Complete
+
+
+
+Regards,
+Mushrif Mulla''', cc: 'mcube.rehman@gmail.com', from: '', replyTo: '', subject: 'Build Complete', to: 'mushrifmulla@gmail.com'
+    }
+    
+}
+
+
+
+
