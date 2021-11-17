@@ -19,7 +19,7 @@ pipeline{
                 sh "mvn clean package"
             }
         }
-        
+        /*
         stage('SonarQubeReport'){
             steps{
                 sh "mvn sonar:sonar"
@@ -39,8 +39,10 @@ pipeline{
               }
             }
         }
+        */
     }//stages closing
     
+    /*
     post{
         success{
              mail bcc: '', body: '''Build Complete
@@ -60,5 +62,6 @@ Regards,
 Mushrif Mulla''', cc: 'mcube.rehman@gmail.com', from: '', replyTo: '', subject: 'Build Complete', to: 'mushrifmulla@gmail.com'
         }
     }
+    */
     
 }//pipeline closing
