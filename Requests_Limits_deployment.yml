@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: java-app-requests-limits-deploy
+  name: maven-app-requests-limits-deploy
   namespace: test-ns
 spec:
   replicas: 4
@@ -13,16 +13,16 @@ spec:
   minReadySeconds: 20
   selector:
     matchLabels:
-      app: javawebapp
+      app: mavenwebapp
   template:
     metadata:
-      name: java-app-deployment
+      name: maven-app-deployment
       labels:
-        app: javawebapp
+        app: mavenwebapp
     spec:
       containers:
-      - name: java-app-deploy
-        image: mushrifmulla/java-web-app:2
+      - name: maven-app-deploy
+        image: mushrifmulla/maven-web-application:$TAG
         ports:
         - containerPort: 80
         resources:
@@ -36,13 +36,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: javawebapp-svc
+  name: mavenwebapp-svc
   namespace: test-ns
 spec:
   type: NodePort
   selector:
-    app: javawebapp
+    app: mavenwebapp
   ports:
   - port: 80
-    targetPort: 9981
-    nodePort: 30150
+    targetPort: 8080
+    nodePort: 31150
